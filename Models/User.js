@@ -15,13 +15,13 @@ const User = new Schema({
         type:String,
         required:true
     },
-    phone:{
-        type:Number,
-        required:true
-    },
-    location:{
-        type:String
-    },
+    // phone:{
+    //     type:Number,
+    //     // required:true
+    // },
+    // location:{
+    //     type:String
+    // },
     image:{
         type:String
     },

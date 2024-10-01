@@ -6,6 +6,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import { connectDB } from "./config/Mongo.js";
 dotenv.config()
+import User from "./Routes/User.js";
 
 const app=express()
 app.use(express.json());
@@ -29,3 +30,5 @@ app.listen(PORT, (error)=>{
     }
 })
 connectDB()
+
+app.use("/user", User)
