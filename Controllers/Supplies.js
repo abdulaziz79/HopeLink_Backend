@@ -3,6 +3,10 @@ import Supplies from "../models/Supplies.js"; // Adjust the path according to yo
 import { title } from 'process';
 
 // Create Supply
+import fs from 'fs';
+import Supplies from "../models/Supplies.js"; // Adjust the path according to your file structure
+
+// Create Supply
 export const createSupply = async (req, res) => {
     const {
         title,
@@ -10,12 +14,16 @@ export const createSupply = async (req, res) => {
         location,
         phone,
         price,
-        postedBy, // it's the user id
     } = req.body;
 
     try {
+        // Ensure user is logged in
+        if (!req.user) {
+            return res.status(401).json("You need to be logged in to create a supply");
+        }
+
         // Validate required fields
-        if (!title ||!description || !location || !phone || !price || !postedBy) {
+        if (!title || !description || !location || !phone || !price) {
             if (req.file) {
                 const path = `Public/images/${req.file.filename}`;
                 fs.unlinkSync(path); // Remove the uploaded file if validation fails
@@ -39,7 +47,7 @@ export const createSupply = async (req, res) => {
             location,
             phone,
             price,
-            User: postedBy, // Ensure to match the field in your schema
+            postedBy: req.user.name, // Store the user's name as postedBy
         });
 
         return res.status(200).json(newSupply); // Return the newly created supply
@@ -52,6 +60,8 @@ export const createSupply = async (req, res) => {
         res.status(500).json({ message: "Problem adding supply", error: err });
     }
 };
+
+
 
 // Get All Supplies
 export const getAllSupplies = async (req, res) => {
@@ -83,9 +93,13 @@ export const getOneSupply = async (req, res) => {
 // Update Supply
 export const updateSupply = async (req, res) => {
     const supplyId = req.params.id;
-    const { description, location, phone, price } = req.body;
+    const { description, location, phone, price, title } = req.body;
 
     try {
+        if (!req.user) {
+            return res.status(401).json("You need to be logged in to update this supply");
+        }
+
         const existingSupply = await Supplies.findById(supplyId);
 
         if (!existingSupply) {
@@ -95,6 +109,8 @@ export const updateSupply = async (req, res) => {
             }
             return res.status(404).json({ error: "Supply not found" });
         }
+
+        // Update the fields if they are provided
         if (title) existingSupply.title = title;
         if (description) existingSupply.description = description;
         if (location) existingSupply.location = location;
@@ -127,28 +143,40 @@ export const updateSupply = async (req, res) => {
     }
 };
 
+
+
 // Delete Supply
 export const deleteSupply = async (req, res) => {
-    const supplyId = req.params.id;
+    const { id } = req.params;
 
     try {
-        const supply = await Supplies.findById(supplyId);
-
-        if (!supply) {
-            return res.status(404).json({ error: "Supply not found" });
+        // Ensure the user is logged in
+        if (!req.user) {
+            return res.status(401).json("You need to be logged in to delete a supply");
         }
 
+        const supply = await Supplies.findById(id);
+
+        if (!supply) {
+            return res.status(404).json({ message: "Supply not found" });
+        }
+
+        // Delete the image from the file system
         const imagePath = `Public/images/${supply.image}`;
-        fs.unlinkSync(imagePath, (err) => {
-            if (err) {
-                return res.status(500).json({ error: "Error deleting supply image" });
-            }
-        });
+        try {
+            fs.unlinkSync(imagePath); // Remove the image file
+        } catch (err) {
+            console.error("Error deleting image:", err);
+        }
 
-        await Supplies.deleteOne({ _id: supplyId });
+        // Remove the supply
+        await supply.remove();
 
-        return res.status(200).json({ message: "Supply deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.status(200).json({ message: "Supply successfully deleted" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Problem deleting supply", error: err.message });
     }
 };
+
+
