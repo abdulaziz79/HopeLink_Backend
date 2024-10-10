@@ -7,7 +7,9 @@ import dotenv from "dotenv"
 import { connectDB } from "./config/Mongo.js";
 dotenv.config()
 import User from "./Routes/User.js";
-
+import Supplies from "./Routes/Supplies.js";
+import RequestSupplies from "./Routes/RequestSupplies.js";
+import House from "./Routes/House.js"
 const app=express()
 app.use(express.json());
 
@@ -31,4 +33,8 @@ app.listen(PORT, (error)=>{
 })
 connectDB()
 
+// Define routes
 app.use("/user", User)
+app.use("/supplies", Supplies)
+app.use("/requestSupplies",RequestSupplies)
+app.use("/houses",House )

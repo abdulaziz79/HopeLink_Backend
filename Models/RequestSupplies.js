@@ -27,6 +27,11 @@ const RequestSuppliesSchema = new mongoose.Schema({
         enum: ['Pending', 'Fulfilled'], // Keeps track of whether the request is fulfilled or pending
         default: 'Pending',
     },
+    requestType: {
+        type: String,
+        enum: ['Home', 'Volunteer', 'Supplies'], // Specifies the type of request
+        required: true,
+    },
 }, { timestamps: true });
 
 export default mongoose.model('RequestSupplies', RequestSuppliesSchema);

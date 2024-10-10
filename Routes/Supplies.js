@@ -7,14 +7,14 @@ import {
     deleteSupply
 } from '../Controllers/Supplies.js';
 import { upload } from "../Middlewares/multer.js"; // Your multer config
-
+import { verifyToken } from '../Middlewares/authentication.js';
 const router = express.Router();
 
 // Routes
-router.post("/supplies", upload.single("image"), createSupply);
-router.get("/supplies", getAllSupplies);
-router.get("/supplies/:id", getOneSupply);
-router.put("/supplies/:id", upload.single("image"), updateSupply);
-router.delete("/supplies/:id", deleteSupply);
+router.post("/add",  verifyToken, upload.single("image"), createSupply);
+router.get("/", getAllSupplies);
+router.get("/:id",  getOneSupply);
+router.put("/:id", verifyToken, upload.single("image"), updateSupply);
+router.delete("/:id",verifyToken, deleteSupply);
 
 export default router;

@@ -6,22 +6,22 @@ import {
     updateRequestSupply,
     deleteRequestSupply
 } from '../Controllers/RequestSupplies.js';
-
+import { verifyToken } from '../Middlewares/authentication.js';
 const router = express.Router();
 
 // Create a new supply request
-router.post('/request-supplies', createRequestSupply);
+router.post('/add',verifyToken,  createRequestSupply);
 
 // Get a specific request by ID
-router.get('/request-supplies/:id', getRequestSupply);
+router.get('/:id' , getRequestSupply);
 
 // Get all requests with pagination
-router.get('/request-supplies', getAllRequestSupplies);
+router.get('/',  getAllRequestSupplies);
 
 // Update a request by ID
-router.put('/request-supplies/:id', updateRequestSupply);
+router.put('/:id', verifyToken,  updateRequestSupply);
 
 // Delete a request by ID
-router.delete('/request-supplies/:id', deleteRequestSupply);
+router.delete('/:id', verifyToken,  deleteRequestSupply);
 
 export default router;

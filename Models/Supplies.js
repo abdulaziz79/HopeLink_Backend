@@ -27,7 +27,6 @@ const Supplies = new Schema({
         required: true,
         validate: {
             validator: function(value) {
-                // If the value is "free", it's valid. If it's not "free", it must be a number greater than 0.
                 return value === "free" || (typeof value === 'number' && value > 0);
             },
             message: "Price must either be 'free' or a number greater than 0."
@@ -35,7 +34,7 @@ const Supplies = new Schema({
     },
     User: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "User", // Reference the User model
         required: true
     },
     createdAt: {

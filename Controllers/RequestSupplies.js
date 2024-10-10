@@ -3,7 +3,7 @@ import RequestSupplies from '../Models/RequestSupplies.js';
 
 // Create a new request supply
 export const createRequestSupply = async (req, res) => {
-    const { title, description, location, phone } = req.body;
+    const { title, description, location, phone ,requestType} = req.body;
 
     try {
         // Ensure user is logged in
@@ -12,7 +12,7 @@ export const createRequestSupply = async (req, res) => {
         }
 
         // Validate required fields
-        if (!title || !description || !location || !phone) {
+        if (!title || !description || !location || !phone || !requestType) {
             return res.status(400).json("All fields are required");
         }
 
@@ -22,7 +22,10 @@ export const createRequestSupply = async (req, res) => {
             description,
             location,
             phone,
-            requestedBy: req.user.name, // Store the user's name in requestedBy
+            requestedBy: req.user.userId, // Store the user's name in requestedBy
+            requestType,
+            status: 'Pending',  // Default status is Pending
+
         });
 
         return res.status(201).json(newRequestSupply); // Return the newly created request supply
@@ -41,7 +44,7 @@ export const getRequestSupply = async (req, res) => {
         const requestSupply = await RequestSupplies.findById(id).populate('requestedBy');
 
         if (!requestSupply) {
-            return res.status(404).json({ message: "Request not found" });
+            return res.status(404).json({ error:error.message });
         }
 
         return res.status(200).json(requestSupply);
@@ -85,7 +88,7 @@ export const getAllRequestSupplies = async (req, res) => {
 // Update a supply request
 export const updateRequestSupply = async (req, res) => {
     const { id } = req.params;
-    const { title, description, location, phone, status } = req.body;
+    const { title, description, location, phone, status ,requestType} = req.body;
 
     try {
         if (!req.user) {
@@ -104,6 +107,7 @@ export const updateRequestSupply = async (req, res) => {
         if (location) requestSupply.location = location;
         if (phone) requestSupply.phone = phone;
         if (status) requestSupply.status = status; // This can be 'Pending' or 'Fulfilled'
+        if (requestType) requestSupply.requestType = requestType;  // Allow request type update
 
         await requestSupply.save();
 
@@ -133,7 +137,7 @@ export const deleteRequestSupply = async (req, res) => {
         }
 
         // Remove the request supply
-        await requestSupply.remove();
+        await requestSupply.deleteOne();
 
         return res.status(200).json({ message: "Request successfully deleted" });
     } catch (err) {

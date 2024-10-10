@@ -1,49 +1,150 @@
 import House from "../Models/House.js";
-import User from "../Models/User.js";
-import mongoose from "mongoose";
+import fs from "fs";
+import path from "path";
+import { error } from "console";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
+// Create a new post with multiple images
 export const createPost = async (req, res) => {
-    console.log(req.body)
-    console.log("userrrr",req.user.userId)
-      try {
-        const { userId,description, location, categoryId } = req.body;
-        const newPost = new Posts({
-            description,
+    console.log("filee uploaded",req.files); // Log the uploaded files
+
+    try {
+        const { location, governorate, houseSpace, bedrooms, phone } = req.body;
+        const imageFiles = req.files; // Assuming you're using multer for handling image uploads
+
+        // Ensure the user is logged in
+        if (!req.user || !req.user.userId) {
+            return res.status(401).json("You need to be logged in to create a post.");
+        }
+
+        // Ensure required fields are provided
+        if (!location || !governorate || !phone) {
+            return res.status(400).json({message:error.message});
+        }
+
+        // Collect image paths
+        const imagePaths = [];
+        if (imageFiles && imageFiles.length > 0) {
+            imageFiles.forEach((file) => {
+                imagePaths.push(file.path); // Save each file path
+            });
+        }
+
+        // Create the new house post
+        const newPost = new House({
             location,
-            userId:req.user.userId,
-            categoryId
-          })
-          const savedPost = await newPost.save();
+            governorate,
+            houseSpace,
+            bedrooms,
+            phone,
+            userId: req.user.userId, // Link the post to the logged-in user
+            images: imagePaths // Store the uploaded image paths
+        });
 
-          res.status(201).json(savedPost);
-        } catch (error) {
-          console.error(error);
-          res.status(500).json(error.message);
-        }
-      };  
+        // Save the post
+        const savedPost = await newPost.save();
+        return res.status(201).json(savedPost);
 
-      
-
-export const getPosts = async (req, res)=>{
-    try {
-        const posts = await House.find().populate("userId")
-        if(posts){
-            res.status(200).json(users)
-        }
     } catch (error) {
-        res.status(404).json(error.message)
+        console.error(error);
+        res.status(500).json({ message: error.message });
     }
-}
-export const deletePostById = async(req, res)=>{
-    const { id } = req.params
-    try {
-      const deletedPost = await Posts.findByIdAndDelete(id)
-      if(!deletedPost){
-        return res.status(404).json("post not found")
+};
 
-      }
-      res.status(200).json(deletedPost)
+// Get all posts with pagination and user information
+export const getPosts = async (req, res) => {
+    const { page = 1, limit = 8 } = req.query; // Default pagination
+    try {
+        // Convert page and limit to integers
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+
+        // Fetch posts with pagination and populate user information
+        const posts = await House.find()
+            .populate("userId") // Populate only relevant fields
+            .skip((pageNumber - 1) * limitNumber) // Skip items based on pagination
+            .limit(limitNumber);
+
+        // Count the total number of house posts
+        const totalItems = await House.countDocuments();
+
+        return res.status(200).json({
+            posts,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalItems / limitNumber),
+            totalItems
+        });
+
     } catch (error) {
-      res.status(400).json(error.message)
+        console.error(error);
+        res.status(500).json({ message: error.message });
     }
-  }
+};
+
+
+// Get the current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Delete a post by its ID and unlink images
+export const deletePostById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Find the post by ID
+        const post = await House.findById(id);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found." });
+        }
+
+        // Ensure the user is authorized to delete the post (user must be the owner)
+        if (!req.user) {
+            return res.status(401).json("You need to be logged in to delete a supply");
+        }
+
+        // Unlink (delete) the associated images from the file system
+        if (post.images && post.images.length > 0) {
+            post.images.forEach((imagePath) => {
+                fs.unlink(path.join(__dirname, "..", imagePath), (err) => {
+                    if (err) {
+                        console.error("Error deleting image:", err);
+                    }
+                });
+            });
+        }
+
+        // Delete the post from the database
+        await post.deleteOne();
+
+        return res.status(200).json({ message: "Post deleted successfully", post });
+
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: error.message });
+    }
+};
+
+
+
+
+// Get a single house post by its ID
+export const getPostById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Find the house post by ID and populate user information
+        const post = await House.findById(id).populate("userId", "name email");
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found." });
+        }
+
+        return res.status(200).json(post);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};

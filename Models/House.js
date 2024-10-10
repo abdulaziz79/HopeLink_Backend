@@ -3,29 +3,33 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const House = new Schema({
-    location:{
-        type:String,
-        required:true
+    location: {
+        type: String,
+        required: true
     },
-    governorate:{
-        type:String,
-        required:true
+    governorate: {
+        type: String,
+        required: true
     },
-    houseSpace:{
-        type:Number,
+    houseSpace: {
+        type: Number,
     },
-    bedrooms:{
-        type:Number,
+    bedrooms: {
+        type: Number,
     },
-    phone:{
-        type:Number,
-        required:true
+    phone: {
+        type: String,
+        required: true
     },
-    userId:{
-        type:mongoose.Types.ObjectId,
-        ref:"User",
-        required:true
+    userId: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    images: {
+        type: [String], // Array of strings to store image URLs or paths
+        required: false
     }
-})
+}, { timestamps: true }); // Optionally add timestamps for createdAt and updatedAt
 
-export default mongoose.model("House" , House)
+export default mongoose.model("House", House);
