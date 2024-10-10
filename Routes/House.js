@@ -10,7 +10,7 @@ import  {verifyToken, checkRole } from "../Middlewares/authentication.js"
 const router = express.Router();
 
 // Route to create a new post
-router.post("/add", verifyToken,upload.array("images",10) ,createPost);
+router.post("/add", verifyToken,upload.array("images",6) ,createPost);
 
 // Route to get all posts
 router.get("/", getPosts);
