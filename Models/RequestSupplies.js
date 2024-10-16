@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
 const RequestSuppliesSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-    },
+    // title: {
+    //     type: String,
+    //     required: true,
+    // },
     description: {
         type: String,
         required: true,
@@ -21,6 +21,10 @@ const RequestSuppliesSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
+    },
+    image:{
+        type:String,
+        required:false
     },
     status: {
         type: String,

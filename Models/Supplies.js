@@ -3,10 +3,10 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const Supplies = new Schema({
-    title: {
-        type: String,
-        required: true,
-    },
+    // title: {
+    //     type: String,
+    //     required: true,
+    // },
     description: {
         type: String,
         required: true
@@ -32,8 +32,8 @@ const Supplies = new Schema({
             message: "Price must either be 'free' or a number greater than 0."
         }
     },
-    User: {
-        type: mongoose.Schema.Types.ObjectId,
+    userId: {
+        type: mongoose.Types.ObjectId,
         ref: "User", // Reference the User model
         required: true
     },

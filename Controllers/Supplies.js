@@ -4,18 +4,19 @@ import { title } from "process";
 
 // Create Supply
 export const createSupply = async (req, res) => {
-  const { title, description, location, phone, price } = req.body;
+  const {  description, location, phone, price } = req.body;
+  
 
   try {
     // Ensure user is logged in
-    if (!req.user) {
-      return res
-        .status(401)
-        .json("You need to be logged in to create a supply");
-    }
+    // if (!req.user) {
+    //   return res
+    //     .status(401)
+    //     .json("You need to be logged in to create a supply");
+    // }
 
     // Validate required fields
-    if (!title || !description || !location || !phone || !price) {
+    if (!description || !location || !phone || !price) {
       if (req.file) {
         const path = `Public/images/${req.file.filename}`;
         fs.unlinkSync(path); // Remove the uploaded file if validation fails
@@ -46,13 +47,12 @@ export const createSupply = async (req, res) => {
 
     // Create a new supply item in the database
     const newSupply = await Supplies.create({
-      title,
       description,
       image,
       location,
       phone,
       price: finalPrice, // Store the finalPrice after conversion
-      User: req.user.userId, // Store the user's ID in the User field
+      userId: req.user.userId, // Store the user's ID in the User field
     });
 
     return res.status(200).json(newSupply); // Return the newly created supply
@@ -62,33 +62,19 @@ export const createSupply = async (req, res) => {
       const path = `Public/images/${req.file.filename}`;
       fs.unlinkSync(path); // Remove the uploaded file in case of error
     }
-    res.status(500).json({ message: "Problem adding supply", error: err });
+    res.status(500).json({ message: "Problem adding supply", error: err.message });
   }
 };
 
 // Get all supplies with pagination
 export const getAllSupplies = async (req, res) => {
-  const { page = 1, limit = 8 } = req.query; // Default page = 1, limit = 8 items per page
-
   try {
-      // Convert page and limit to integers
-      const pageNumber = parseInt(page);
-      const limitNumber = parseInt(limit);
 
-      // Fetch the supplies with pagination
-      const supplies = await Supplies.find()
-          .populate('User') // Assuming 'suppliedBy' is a reference field to the supplier or user
-          .skip((pageNumber - 1) * limitNumber) // Skip items from previous pages
-          .limit(limitNumber); // Limit the number of items per page
-
-      // Get the total number of supply items
-      const totalItems = await Supplies.countDocuments();
+      const supplies = await Supplies.find().populate("userId")
 
       return res.status(200).json({
-          supplies,
-          currentPage: pageNumber,
-          totalPages: Math.ceil(totalItems / limitNumber), // Calculate total pages
-          totalItems
+          supplies
+
       });
   } catch (err) {
       console.error(err);

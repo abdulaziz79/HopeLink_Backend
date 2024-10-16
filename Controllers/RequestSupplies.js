@@ -3,7 +3,7 @@ import RequestSupplies from '../Models/RequestSupplies.js';
 
 // Create a new request supply
 export const createRequestSupply = async (req, res) => {
-    const { title, description, location, phone ,requestType} = req.body;
+    const { description, location, phone, requestType } = req.body;
 
     try {
         // Ensure user is logged in
@@ -12,26 +12,87 @@ export const createRequestSupply = async (req, res) => {
         }
 
         // Validate required fields
-        if (!title || !description || !location || !phone || !requestType) {
+        if (!description || !location || !phone || !requestType) {
             return res.status(400).json("All fields are required");
+        }
+
+        // Check if an image was uploaded, but make it optional
+        let image = null;
+        if (req.file) {
+            image = req.file.filename; // Assign the image filename if an image was uploaded
         }
 
         // Create a new request supply item
         const newRequestSupply = await RequestSupplies.create({
-            title,
             description,
             location,
             phone,
-            requestedBy: req.user.userId, // Store the user's name in requestedBy
+            image,  // This will be null if no image is uploaded
+            requestedBy: req.user.userId, // Store the user's ID in requestedBy
             requestType,
-            status: 'Pending',  // Default status is Pending
-
+            status: 'Pending'  // Default status is Pending
         });
 
         return res.status(201).json(newRequestSupply); // Return the newly created request supply
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Problem adding request supply", error: err.message });
+    }
+};
+
+// Get all request supplies with requestType "Home"
+export const getHomeRequests = async (req, res) => {
+    try {
+        // Find all request supplies where requestType is "Home"
+        const homeRequests = await RequestSupplies.find({ requestType: 'Home' }).populate("requestedBy")
+
+
+        // Check if any requests were found
+        if (homeRequests.length === 0) {
+            return res.status(404).json({ message: "No Home requests found" });
+        }
+
+        // Return the list of requests
+        return res.status(200).json(homeRequests);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error retrieving Home requests", error: err.message });
+    }
+};
+export const getSuppliesRequests = async (req, res) => {
+    try {
+        // Find all request supplies where requestType is "Home"
+        const homeRequests = await RequestSupplies.find({ requestType: 'Supplies' }).populate("requestedBy")
+
+
+        // Check if any requests were found
+        if (homeRequests.length === 0) {
+            return res.json({ message: "No Home requests found" });
+        }
+
+        // Return the list of requests
+        return res.status(200).json(homeRequests);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error retrieving Home requests", error: err.message });
+    }
+};
+export const getVolunteerRequests = async (req, res) => {
+    try {
+        // Find all request supplies where requestType is "Home"
+        const homeRequests = await RequestSupplies.find({ requestType: 'Volunteer' })
+
+
+        // Check if any requests were found
+        if (homeRequests.length === 0) {
+            return res.status(404).json({ message: "No Home requests found" });
+        }
+
+        // Return the list of requests
+        return res.status(200).json(homeRequests);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error retrieving Home requests", error: err.message });
     }
 };
 

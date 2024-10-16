@@ -1,5 +1,7 @@
 import User from "../Models/User.js"
 import bcrypt from "bcrypt"
+import House from "../Models/House.js";
+import Supplies from "../Models/Supplies.js";
 import jwt from "jsonwebtoken"
 
 // export const register = async(req,res)=>{
@@ -33,7 +35,7 @@ import jwt from "jsonwebtoken"
 //     }
 // }
 export const register = async (req, res) => {
-  const { name, email, password, phone ,role} = req.body;
+  const { name, email, password,role} = req.body;
   try {
       // Check if password exists and is at least 6 characters long
       if (!password || typeof password !== 'string' || password.trim().length < 6) {
@@ -54,7 +56,6 @@ export const register = async (req, res) => {
           name,
           email,
           role,
-          phone: phone || null,
           password: hashedPass
       });
 
@@ -63,15 +64,15 @@ export const register = async (req, res) => {
 
       // Generate JWT token
       const token = jwt.sign(
-          { userId: newUser._id, email: newUser.email, name: newUser.name, phone: newUser.phone , role:newUser.role},
+          { userId: newUser._id, email: newUser.email, name: newUser.name, role:newUser.role},
           process.env.SECRET_KEY,
           { expiresIn: '24h' }
       );
 
       // Set the token as a cookie
       const isSecure = process.env.NODE_ENV === "production";
-      res.cookie("token", token, { httpOnly: true, secure: isSecure, sameSite: 'None' });
-
+      res.cookie("token", token, { httpOnly: true, secure: true, sameSite: 'None' });
+        // console.log(token)
       // Return the created user
       res.status(201).json(newUser);
 
@@ -115,3 +116,17 @@ export const deleteUserById = async(req, res)=>{
       }
     
 }
+
+export const getByUserId = async (req, res) => {
+  const id=req.params.id
+  try {
+    const userPosts= await House.find({userId: id}).populate("userId").sort({createdAt:-1})
+    // const usersUserId = users.map(user=> user._id)
+    // const userPosts = await Posts.find({userId: {$in: usersUserId}}).populate("userId")
+    res.json(userPosts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(error.message);
+  }
+};
+

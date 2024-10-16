@@ -17,7 +17,8 @@ import {
     register, 
     getUsers, 
     getUserById, 
-    deleteUserById 
+    deleteUserById, 
+    getByUserId
 } from "../Controllers/User.js"; // Import user controller functions
 import { login, verifyToken, loggedInUser, logOut , checkRole} from "../Middlewares/authentication.js"; // Import authentication middleware
 
@@ -33,10 +34,11 @@ router.post("/login", login); // Log in a user
 router.get("/me", verifyToken, loggedInUser); // Get logged-in user data
 
 // Route to get all users (protected, for admin use case)
-router.get("/", verifyToken, getUsers); // Get all users
+router.get("/",  getUsers); // Get all users
 
 // Route to get a specific user by ID (protected)
 router.get("/:id", verifyToken, getUserById); // Get user by ID
+router.get("/houseAndSupplies/:id", getByUserId); // Get user by ID
 
 // Route to delete a user by ID (protected)
 router.delete("/:id", verifyToken, checkRole(['admin']), deleteUserById); // Delete user by ID

@@ -7,10 +7,10 @@ const House = new Schema({
         type: String,
         required: true
     },
-    governorate: {
-        type: String,
-        required: true
-    },
+    // governorate: {
+    //     type: String,
+    //     required: true
+    // },
     houseSpace: {
         type: Number,
     },
@@ -19,6 +19,10 @@ const House = new Schema({
     },
     phone: {
         type: String,
+        required: true
+    },
+    price: {
+        type: Number,
         required: true
     },
     userId: {

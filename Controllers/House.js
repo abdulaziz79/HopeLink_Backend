@@ -7,10 +7,10 @@ import { dirname } from "path";
 
 // Create a new post with multiple images
 export const createPost = async (req, res) => {
-    console.log("filee uploaded",req.files); // Log the uploaded files
-
+ // Log the uploaded files
+    console.log(req.user.userId)
     try {
-        const { location, governorate, houseSpace, bedrooms, phone } = req.body;
+        const { location, houseSpace, bedrooms, phone, price } = req.body;
         const imageFiles = req.files; // Assuming you're using multer for handling image uploads
 
         // Ensure the user is logged in
@@ -18,24 +18,20 @@ export const createPost = async (req, res) => {
             return res.status(401).json("You need to be logged in to create a post.");
         }
 
-        // Ensure required fields are provided
-        if (!location || !governorate || !phone) {
+
+        if (!location  || !phone) {
             return res.status(400).json({message:error.message});
         }
 
-        // Collect image paths
-        const imagePaths = [];
-        if (imageFiles && imageFiles.length > 0) {
-            imageFiles.forEach((file) => {
-                imagePaths.push(file.path); // Save each file path
-            });
-        }
+
+        const imagePaths = imageFiles ? imageFiles.map(file => file.filename) : [];
+
 
         // Create the new house post
         const newPost = new House({
             location,
-            governorate,
             houseSpace,
+            price,
             bedrooms,
             phone,
             userId: req.user.userId, // Link the post to the logged-in user
@@ -53,26 +49,45 @@ export const createPost = async (req, res) => {
 };
 
 // Get all posts with pagination and user information
-export const getPosts = async (req, res) => {
-    const { page = 1, limit = 8 } = req.query; // Default pagination
-    try {
-        // Convert page and limit to integers
-        const pageNumber = parseInt(page);
-        const limitNumber = parseInt(limit);
+// export const getPosts = async (req, res) => {
+//     const { page = 1, limit = 8 } = req.query; // Default pagination
+//     try {
+//         // Convert page and limit to integers
+//         const pageNumber = parseInt(page);
+//         const limitNumber = parseInt(limit);
 
-        // Fetch posts with pagination and populate user information
+//         // Fetch posts with pagination and populate user information
+//         const posts = await House.find()
+//             .populate("userId") // Populate only relevant fields
+//             .skip((pageNumber - 1) * limitNumber) // Skip items based on pagination
+//             .limit(limitNumber);
+
+//         // Count the total number of house posts
+//         const totalItems = await House.countDocuments();
+
+//         return res.status(200).json({
+//             posts,
+//             currentPage: pageNumber,
+//             totalPages: Math.ceil(totalItems / limitNumber),
+//             totalItems
+//         });
+
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+export const getPosts = async (req, res) => {
+    try {
+        // Fetch all posts and populate user information
         const posts = await House.find()
-            .populate("userId") // Populate only relevant fields
-            .skip((pageNumber - 1) * limitNumber) // Skip items based on pagination
-            .limit(limitNumber);
+            .populate("userId"); // Populate only relevant fields
 
         // Count the total number of house posts
         const totalItems = await House.countDocuments();
 
         return res.status(200).json({
             posts,
-            currentPage: pageNumber,
-            totalPages: Math.ceil(totalItems / limitNumber),
             totalItems
         });
 
@@ -81,6 +96,7 @@ export const getPosts = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 // Get the current directory
