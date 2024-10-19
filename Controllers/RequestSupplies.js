@@ -4,7 +4,7 @@ import RequestSupplies from '../Models/RequestSupplies.js';
 // Create a new request supply
 export const createRequestSupply = async (req, res) => {
     const { description, location, phone, requestType } = req.body;
-
+    console.log(description, location,phone,requestType)
     try {
         // Ensure user is logged in
         if (!req.user) {
@@ -16,10 +16,10 @@ export const createRequestSupply = async (req, res) => {
             return res.status(400).json("All fields are required");
         }
 
-        // Check if an image was uploaded, but make it optional
+    
         let image = null;
         if (req.file) {
-            image = req.file.filename; // Assign the image filename if an image was uploaded
+            image = req.file.filename; 
         }
 
         // Create a new request supply item
@@ -27,32 +27,27 @@ export const createRequestSupply = async (req, res) => {
             description,
             location,
             phone,
-            image,  // This will be null if no image is uploaded
-            requestedBy: req.user.userId, // Store the user's ID in requestedBy
+            image,  
+            requestedBy: req.user.userId,
             requestType,
-            status: 'Pending'  // Default status is Pending
+            status: 'Pending' 
         });
 
-        return res.status(201).json(newRequestSupply); // Return the newly created request supply
+        return res.status(201).json(newRequestSupply); 
     } catch (err) {
-        console.error(err);
+        console.error(err.message);
         res.status(500).json({ message: "Problem adding request supply", error: err.message });
     }
 };
 
-// Get all request supplies with requestType "Home"
 export const getHomeRequests = async (req, res) => {
     try {
-        // Find all request supplies where requestType is "Home"
-        const homeRequests = await RequestSupplies.find({ requestType: 'Home' }).populate("requestedBy")
+        const homeRequests = await RequestSupplies.find({ requestType: 'Home' }).populate("requestedBy").sort({createdAt:-1})
 
 
-        // Check if any requests were found
         if (homeRequests.length === 0) {
             return res.status(404).json({ message: "No Home requests found" });
         }
-
-        // Return the list of requests
         return res.status(200).json(homeRequests);
     } catch (err) {
         console.error(err);
@@ -61,16 +56,13 @@ export const getHomeRequests = async (req, res) => {
 };
 export const getSuppliesRequests = async (req, res) => {
     try {
-        // Find all request supplies where requestType is "Home"
-        const homeRequests = await RequestSupplies.find({ requestType: 'Supplies' }).populate("requestedBy")
+        const homeRequests = await RequestSupplies.find({ requestType: 'Supplies' }).populate("requestedBy").sort({createdAt:-1})
 
 
-        // Check if any requests were found
         if (homeRequests.length === 0) {
             return res.json({ message: "No Home requests found" });
         }
 
-        // Return the list of requests
         return res.status(200).json(homeRequests);
     } catch (err) {
         console.error(err);
@@ -79,11 +71,9 @@ export const getSuppliesRequests = async (req, res) => {
 };
 export const getVolunteerRequests = async (req, res) => {
     try {
-        // Find all request supplies where requestType is "Home"
-        const homeRequests = await RequestSupplies.find({ requestType: 'Volunteer' })
+        const homeRequests = await RequestSupplies.find({ requestType: 'Volunteer' }).populate('requestedBy').sort({createdAt:-1})
 
 
-        // Check if any requests were found
         if (homeRequests.length === 0) {
             return res.status(404).json({ message: "No Home requests found" });
         }

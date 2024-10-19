@@ -31,9 +31,9 @@ const House = new Schema({
         required: true
     },
     images: {
-        type: [String], // Array of strings to store image URLs or paths
+        type: [String], 
         required: false
     }
-}, { timestamps: true }); // Optionally add timestamps for createdAt and updatedAt
+}, { timestamps: true }); 
 
 export default mongoose.model("House", House);

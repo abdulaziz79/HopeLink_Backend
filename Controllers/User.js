@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import House from "../Models/House.js";
 import Supplies from "../Models/Supplies.js";
 import jwt from "jsonwebtoken"
+import Volunteer from "../Models/Volunteer.js";
 
 // export const register = async(req,res)=>{
 //     const {name, email, password, phone }= req.body;
@@ -123,6 +124,26 @@ export const getByUserId = async (req, res) => {
     const userPosts= await House.find({userId: id}).populate("userId").sort({createdAt:-1})
     // const usersUserId = users.map(user=> user._id)
     // const userPosts = await Posts.find({userId: {$in: usersUserId}}).populate("userId")
+    res.json(userPosts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(error.message);
+  }
+};
+export const getDonationByUserId = async (req, res) => {
+  const id=req.params.id
+  try {
+    const userPosts= await Supplies.find({userId: id}).populate("userId").sort({createdAt:-1})
+    res.json(userPosts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(error.message);
+  }
+};
+export const getVolunteerByUserId = async (req, res) => {
+  const id=req.params.id
+  try {
+    const userPosts= await Volunteer.find({userId: id}).populate("userId").sort({createdAt:-1})
     res.json(userPosts);
   } catch (error) {
     console.error(error);

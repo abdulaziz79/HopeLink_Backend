@@ -14,7 +14,7 @@ import { upload } from '../Middlewares/multer.js';
 const router = express.Router();
 
 // Create a new supply request
-router.post('/add',verifyToken,upload.single("images") , createRequestSupply);
+router.post('/add', verifyToken,upload.single("image") , createRequestSupply);
 
 // Get a specific request by ID
 router.get('/:id' , getRequestSupply);

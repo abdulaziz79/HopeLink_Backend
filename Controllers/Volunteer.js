@@ -3,7 +3,6 @@ import Volunteer from "../Models/Volunteer.js";
 // Create a volunteer post
 export const createVolunteer = async (req, res) => {
   const { description, location, phone } = req.body;
-  console.log(description,location,phone)
   try {
     const newPost = await Volunteer.create({
       description,

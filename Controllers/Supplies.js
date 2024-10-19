@@ -70,7 +70,7 @@ export const createSupply = async (req, res) => {
 export const getAllSupplies = async (req, res) => {
   try {
 
-      const supplies = await Supplies.find().populate("userId")
+      const supplies = await Supplies.find().populate("userId").sort({createdAt:-1})
 
       return res.status(200).json({
           supplies

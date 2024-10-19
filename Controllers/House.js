@@ -80,7 +80,7 @@ export const createPost = async (req, res) => {
 export const getPosts = async (req, res) => {
     try {
         // Fetch all posts and populate user information
-        const posts = await House.find()
+        const posts = await House.find().sort({createdAt:-1})
             .populate("userId"); // Populate only relevant fields
 
         // Count the total number of house posts

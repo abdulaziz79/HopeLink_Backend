@@ -11,7 +11,7 @@ import { verifyToken } from '../Middlewares/authentication.js';
 const router = express.Router();
 
 // Routes
-router.post("/add",verifyToken, upload.single("image"), createSupply);
+router.post("/add",verifyToken, upload.single("images"), createSupply);
 router.get("/", getAllSupplies);
 router.get("/:id",  getOneSupply);
 router.put("/:id", verifyToken, upload.single("image"), updateSupply);
