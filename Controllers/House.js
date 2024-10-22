@@ -104,6 +104,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Delete a post by its ID and unlink images
+// Delete a post by its ID and unlink images using filenames
 export const deletePostById = async (req, res) => {
     const { id } = req.params;
 
@@ -120,10 +121,11 @@ export const deletePostById = async (req, res) => {
             return res.status(401).json("You need to be logged in to delete a supply");
         }
 
-        // Unlink (delete) the associated images from the file system
+        // Unlink (delete) the associated images from the file system using just the filename
         if (post.images && post.images.length > 0) {
-            post.images.forEach((imagePath) => {
-                fs.unlink(path.join(__dirname, "..", imagePath), (err) => {
+            post.images.forEach((filename) => {
+                const filePath = path.join(__dirname, "..", "Public/images", filename); // Adjust "uploads" as per your directory structure
+                fs.unlink(filePath, (err) => {
                     if (err) {
                         console.error("Error deleting image:", err);
                     }

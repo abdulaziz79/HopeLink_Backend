@@ -11,10 +11,10 @@ import { verifyToken } from '../Middlewares/authentication.js';
 const router = express.Router();
 
 // Routes
-router.post("/add",verifyToken, upload.single("images"), createSupply);
+router.post("/add",verifyToken, upload.single("image"), createSupply);
 router.get("/", getAllSupplies);
 router.get("/:id",  getOneSupply);
 router.put("/:id", verifyToken, upload.single("image"), updateSupply);
-router.delete("/:id",verifyToken, deleteSupply);
+router.delete("/delete/:id",verifyToken, deleteSupply);
 
 export default router;

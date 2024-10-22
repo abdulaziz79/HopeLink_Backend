@@ -4,18 +4,10 @@ import { title } from "process";
 
 // Create Supply
 export const createSupply = async (req, res) => {
-  const {  description, location, phone, price } = req.body;
-  
+  const { description, location, phone, price } = req.body;
 
   try {
-    // Ensure user is logged in
-    // if (!req.user) {
-    //   return res
-    //     .status(401)
-    //     .json("You need to be logged in to create a supply");
-    // }
 
-    // Validate required fields
     if (!description || !location || !phone || !price) {
       if (req.file) {
         const path = `Public/images/${req.file.filename}`;
@@ -24,38 +16,38 @@ export const createSupply = async (req, res) => {
       return res.status(400).json("All fields are required");
     }
 
-    // Check if an image was uploaded
-    if (!req.file) {
-      return res.status(400).json("Upload an image");
+    // Optional image: only set if a file is uploaded
+    let image;
+    if (req.file) {
+      image = req.file.filename;
     }
 
-    // Get the filename from the uploaded file
-    const image = req.file.filename;
-
-    // Check and convert price
     let finalPrice;
     if (price === "free") {
       finalPrice = price;
     } else {
       finalPrice = Number(price);
       if (isNaN(finalPrice) || finalPrice <= 0) {
-        return res
-          .status(400)
-          .json("Price must either be 'free' or a number greater than 0.");
+        return res.status(400).json("Price must either be 'free' or a number greater than 0.");
       }
     }
 
-    // Create a new supply item in the database
-    const newSupply = await Supplies.create({
+    // Create the new supply item in the database
+    const newSupplyData = {
       description,
-      image,
       location,
       phone,
       price: finalPrice, // Store the finalPrice after conversion
       userId: req.user.userId, // Store the user's ID in the User field
-    });
+    };
 
-    return res.status(200).json(newSupply); // Return the newly created supply
+    if (image) {
+      newSupplyData.image = image;
+    }
+
+    const newSupply = await Supplies.create(newSupplyData);
+
+    return res.status(200).json(newSupply); 
   } catch (err) {
     console.log(err);
     if (req.file) {
@@ -65,6 +57,7 @@ export const createSupply = async (req, res) => {
     res.status(500).json({ message: "Problem adding supply", error: err.message });
   }
 };
+
 
 // Get all supplies with pagination
 export const getAllSupplies = async (req, res) => {
@@ -171,7 +164,6 @@ export const deleteSupply = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Ensure the user is logged in
     if (!req.user) {
       return res
         .status(401)
@@ -184,10 +176,9 @@ export const deleteSupply = async (req, res) => {
       return res.status(404).json({ message: "Supply not found" });
     }
 
-    // Delete the image from the file system
     const imagePath = `Public/images/${supply.image}`;
     try {
-      fs.unlinkSync(imagePath); // Remove the image file
+      fs.unlinkSync(imagePath); 
     } catch (err) {
       console.error("Error deleting image:", err);
     }
