@@ -19,7 +19,8 @@ app.use(express.json());
 app.use("/images", express.static('Public/images'))
 
 const corsOption={
-    origin:'http://localhost:3000',
+    // origin:'http://localhost:3000',
+    origin:process.env.FRONT_END_LINK,
     credentials:true,
     optionsSuccessStatus:200
 }
