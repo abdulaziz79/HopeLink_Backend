@@ -70,7 +70,7 @@ export const register = async (req, res) => {
           { expiresIn: '24h' }
       );
 
-      res.cookie("token", token, { httpOnly: true, secure: true, sameSite: 'None' });
+      res.cookie("token", token, { httpOnly: true, secure: isSecure, sameSite: 'None' });
         // console.log(token)
       // Return the created user
       res.status(201).json(newUser);
