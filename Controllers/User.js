@@ -63,15 +63,13 @@ export const register = async (req, res) => {
       // Save the new user in the database
       await newUser.save();
 
-      // Generate JWT token
+      const isSecure = process.env.NODE_ENV === "production";
       const token = jwt.sign(
           { userId: newUser._id, email: newUser.email, name: newUser.name, role:newUser.role},
           process.env.SECRET_KEY,
           { expiresIn: '24h' }
       );
 
-      // Set the token as a cookie
-      const isSecure = process.env.NODE_ENV === "production";
       res.cookie("token", token, { httpOnly: true, secure: true, sameSite: 'None' });
         // console.log(token)
       // Return the created user

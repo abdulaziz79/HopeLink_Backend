@@ -82,7 +82,7 @@ export const authenticateUser = (req, res, next) => {
 
   export const logOut = (req, res) => {
     return res
-      .clearCookie("token")
+      .clearCookie("token", {sameSite:true, secure:true})
       .status(200)
       .json({ message: "Successfully Logged Out!" });
   };
