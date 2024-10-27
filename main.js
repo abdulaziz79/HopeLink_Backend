@@ -19,21 +19,13 @@ app.use(express.json());
 app.use("/images", express.static('Public/images'))
 
 const corsOption={
-    origin:['http://localhost:3000',"https://hope-link-frontend.vercel.app","https://hope-link-lb.vercel.app","https://hope-link-leb.vercel.app/"],
+    origin:['http://localhost:3000',"https://hope-link-frontend.vercel.app","https://hope-link-lb.vercel.app","https://hope-link-leb.vercel.app","https://hope-link-lebanon.vercel.app"],
     // origin:process.env.FRONT_END_LINK,
     credentials:true,
     optionsSuccessStatus:200
 }
-app.use(cors({
-    origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-  }));app.use(bodyParser.urlencoded({extended:true}));
+app.use(cors(corsOption))
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(cookieParser())
 
 const PORT= process.env.PORT;
