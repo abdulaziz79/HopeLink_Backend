@@ -19,7 +19,7 @@ app.use(express.json());
 app.use("/images", express.static('Public/images'))
 
 const corsOption={
-    origin:['http://localhost:3000',"https://hope-link-frontend.vercel.app","https://hope-link-lb.vercel.app"],
+    origin:['http://localhost:3000',"https://hope-link-frontend.vercel.app","https://hope-link-lb.vercel.app","https://hope-link-leb.vercel.app/"],
     // origin:process.env.FRONT_END_LINK,
     credentials:true,
     optionsSuccessStatus:200
