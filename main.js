@@ -24,8 +24,16 @@ const corsOption={
     credentials:true,
     optionsSuccessStatus:200
 }
-app.use(cors(corsOption))
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(cors({
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  }));app.use(bodyParser.urlencoded({extended:true}));
 app.use(cookieParser())
 
 const PORT= process.env.PORT;
