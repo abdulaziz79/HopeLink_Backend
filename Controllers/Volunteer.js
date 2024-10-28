@@ -19,7 +19,7 @@ export const createVolunteer = async (req, res) => {
 // Get all volunteer posts
 export const getVolunteer = async (req, res) => {
   try {
-    const volunteer = await Volunteer.find().populate("userId");
+    const volunteer = await Volunteer.find().populate("userId").sort({createdAt:-1});
     return res.status(200).json({ volunteer });
   } catch (error) {
     res.status(500).json(error.message);
